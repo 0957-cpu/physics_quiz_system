@@ -1,0 +1,8 @@
+{
+  "questions_per_test": 3,
+  "show_explanation": true,
+  "wrong_only_mode": false,
+  "daily_limit": 3,
+  "time_limit_seconds": 240,
+  "": 300
+}
