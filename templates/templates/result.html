@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📊 作答結果</h2>
+<p>學生：{{ name }}</p>
+<p>本次得分：<b>{{ score }}</b> 分</p>
+
+<hr>
+
+{% for r in results %}
+  <div style="margin-bottom: 18px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+    
+    <!-- 題幹 -->
+    <p><b>{{ loop.index }}. {{ r.text }}</b></p>
+
+    <!-- 學生答案 / 正確答案 -->
+    <p>
+      <b>你的答案：</b>
+      {% if r.user_answer %}
+        {{ r.user_answer }}
+      {% else %}
+        <span style="color:gray;">（未作答）</span>
+      {% endif %}
+    </p>
+
+    <p>
+      <b>正確答案：</b> {{ r.answer }}
+    </p>
+
+    <!-- 顯示詳解 (由 settings.show_explanation 控制) -->
+    {% if show_explanation %}
+      <p style="margin-top: 8px;">
+        <b>詳解：</b><br>
+        {{ r.explanation }}
+      </p>
+    {% endif %}
+
+    <!-- 答對 / 答錯標示 -->
+    {% if r.correct %}
+      <p style="color: green;"><b>✔ 答對！</b></p>
+    {% else %}
+      <p style="color: red;"><b>✘ 答錯</b></p>
+    {% endif %}
+
+  </div>
+{% endfor %}
+
+<hr>
+
+<!-- 返回作答 / 登出按鈕 -->
+<a href="{{ url_for('quiz') }}">
+  <button style="margin-right:10px;">再練一次</button>
+</a>
+
+<form method="post" action="{{ url_for('logout') }}" style="display:inline;">
+  <button type="submit">登出</button>
+</form>
+
+{% endblock %}
+

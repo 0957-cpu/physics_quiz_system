@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title or "《庭瑜ㄟ物理習題練習區》" }}</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", sans-serif;
+      background-color: #f7f9fc;
+    }
+    header {
+  background-color: #3f72af;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  letter-spacing: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header .title {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+header .welcome {
+  font-size: 16px;
+}
+
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+    nav {
+      width: 200px;
+      background-color: #dbe2ef;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    nav a {
+      display: block;
+      color: #112d4e;
+      text-decoration: none;
+      padding: 10px 5px;
+      margin: 5px 0;
+      border-radius: 6px;
+    }
+    nav a:hover {
+      background-color: #3f72af;
+      color: white;
+    }
+    main {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+    }
+    button {
+      background-color: #3f72af;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2e5c8a;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+  <div class="title">《庭瑜ㄟ物理習題練習區》</div>
+  {% if session.get("logged_in") %}
+    <div class="welcome">
+      👋 歡迎，{{ session.get("user_name") or session.get("name") }} 同學
+    </div>
+  {% endif %}
+</header>
+
+  <div class="container">
+    {% if session.get("user_account") %}
+    <nav>
+  <a href="{{ url_for('home') }}">🏠 首頁</a>
+  <a href="{{ url_for('quiz') }}">🧪 作答</a>
+  <a href="{{ url_for('points') }}">⭐ 積分查詢</a>
+  <a href="{{ url_for('review') }}">📚 錯題回顧</a>
+  <a href="{{ url_for('change_password') }}">🔒 變更密碼</a>
+
+  {% if session.get("user_account") == "t001" or session.get("is_teacher") %}
+    <hr>
+    <a href="{{ url_for('teacher_home') }}">🎓 老師首頁</a>
+    <a href="{{ url_for('settings_page') }}">⚙️ 老師設定</a>
+  {% endif %}
+</nav>
+
+  
+      <form method="post" action="{{ url_for('logout') }}">
+        <button type="submit" style="margin-top:10px;">登出</button>
+      </form>
+    </nav>
+    {% endif %}
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

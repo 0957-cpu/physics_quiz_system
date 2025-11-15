@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <h2>🎓 老師專用首頁 — 全班排行榜</h2>
+  <p>您好，{{ teacher_name }}！這裡是全班成績總覽。</p>
+
+  <!-- 概況統計 -->
+  <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0;">
+    <div style="flex: 1 1 160px; min-width: 160px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">學生人數</div>
+      <div style="font-size: 1.4em; font-weight: bold;">{{ total_students or 0 }}</div>
+    </div>
+    <div style="flex: 1 1 160px; min-width: 160px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">平均積分</div>
+      <div style="font-size: 1.4em; font-weight: bold;">
+        {% if avg_points is not none %}{{ avg_points }}{% else %}—{% endif %}
+      </div>
+    </div>
+    <div style="flex: 1 1 160px; min-width: 160px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">最高積分</div>
+      <div style="font-size: 1.4em; font-weight: bold;">
+        {% if max_points is not none %}{{ max_points }}{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 全班排行榜 -->
+  <div style="margin-top: 10px;">
+    <h3>🏆 全班積分排名</h3>
+
+    {% if not students %}
+      <p>目前尚無學生資料或 users.xlsx 還沒建好。</p>
+    {% else %}
+      <table border="0" cellspacing="0" cellpadding="6"
+             style="border-collapse: collapse; width: 100%; font-size: 0.95em;">
+        <thead>
+          <tr style="border-bottom: 2px solid #ccc;">
+            <th align="left">名次</th>
+            <th align="left">姓名</th>
+            <th align="left">帳號</th>
+            <th align="left">累積積分</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+            {% set rank = s.rank %}
+            {% if rank == 1 %}
+              {% set bg = "#fff7d6" %}
+            {% elif rank == 2 %}
+              {% set bg = "#f0f4ff" %}
+            {% elif rank == 3 %}
+              {% set bg = "#e6fff0" %}
+            {% else %}
+              {% set bg = "#ffffff" %}
+            {% endif %}
+            <tr style="border-bottom: 1px solid #eee; background-color: {{ bg }};">
+              <td>{{ s.rank }}</td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.account }}</td>
+              <td>{{ s.total_points }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <!-- 快速操作 -->
+  <div style="margin-top: 18px;">
+    <h3>🧰 老師快捷功能</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+      <a href="{{ url_for('home') }}">
+        <button type="button" style="padding: 8px 14px;">🏠 回學生首頁（預覽學生介面）</button>
+      </a>
+      <a href="{{ url_for('settings_page') }}">
+        <button type="button" style="padding: 8px 14px;">⚙️ 題數 / 倒數 / 模式設定</button>
+      </a>
+      <a href="{{ url_for('points') }}">
+        <button type="button" style="padding: 8px 14px;">📄 全班作答紀錄（Google / Excel）</button>
+      </a>
+    </div>
+  </div>
+
+{% endblock %}

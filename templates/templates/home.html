@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <h2>🏠 庭瑜ㄟ物理習題練習區 — 首頁</h2>
+  <p>嗨，{{ name }}！歡迎回來～</p>
+
+  <!-- ⭐ 上方統計卡片區 -->
+  <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0;">
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">累積積分</div>
+      <div style="font-size: 1.4em; font-weight: bold;">{{ total_points or 0 }}</div>
+    </div>
+
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">目前等級</div>
+      <div style="font-size: 1.4em; font-weight: bold;">{{ level or "—" }}</div>
+    </div>
+
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">班級排名</div>
+      {% if rank and total_users %}
+        <div style="font-size: 1.2em; font-weight: bold;">第 {{ rank }} 名 / 共 {{ total_users }} 人</div>
+      {% else %}
+        <div style="font-size: 1.2em;">—</div>
+      {% endif %}
+    </div>
+
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">總作答次數</div>
+      <div style="font-size: 1.4em; font-weight: bold;">{{ total_attempts or 0 }}</div>
+    </div>
+
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">最高分</div>
+      <div style="font-size: 1.4em; font-weight: bold;">
+        {% if best_score is not none %}{{ best_score }}{% else %}—{% endif %}
+      </div>
+    </div>
+
+    <div style="flex: 1 1 150px; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+      <div style="font-size: 0.9em; color: #555;">平均分</div>
+      <div style="font-size: 1.4em; font-weight: bold;">
+        {% if avg_score is not none %}{{ avg_score }}{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 📅 今日作答狀態 -->
+  <div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>📅 今日作答狀態</h3>
+    <p>{{ limit_msg }}</p>
+
+    {% if reached_limit %}
+      <p style="color: red; font-weight: bold;">今天已經不能再作答囉，明天再來挑戰！</p>
+    {% elif daily_limit and daily_limit > 0 %}
+      <div style="margin-top: 6px; font-size: 0.9em; color:#555;">
+        已作答：{{ daily_limit - (remaining or 0) }}/{{ daily_limit }} 次
+      </div>
+    {% endif %}
+
+    {% if last_time and last_score is not none %}
+      <div style="margin-top: 8px; font-size: 0.9em; color:#555;">
+        最近一次測驗：{{ last_time }}，分數：{{ last_score }} 分
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- 📊 今日作答紀錄 -->
+  <div style="margin: 14px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>📊 今日作答紀錄</h3>
+    {% if today_attempts %}
+      <table border="0" cellspacing="0" cellpadding="6" style="border-collapse: collapse; width: 100%; font-size: 0.95em;">
+        <thead>
+          <tr style="border-bottom: 1px solid #ccc;">
+            <th align="left">時間</th>
+            <th align="left">第幾次作答</th>
+            <th align="left">分數</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in today_attempts %}
+            <tr style="border-bottom: 1px solid #eee;">
+              <td>{{ a.time }}</td>
+              <td>{{ a.attempt_no }}</td>
+              <td>{{ a.score }} 分</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>今天尚未作答，趕快來挑戰一份吧！</p>
+    {% endif %}
+  </div>
+
+  
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>積分查詢</h2>
+  <p>同學 {{ name }} 你好！以下是你的目前積分紀錄：</p>
+
+  <p>目前累積總積分：{{ total_points }}</p>
+  <p>目前班級排名：第 {{ rank }} 名（共 {{ total_users }} 位同學）</p>
+
+  <hr>
+  <h3>歷次作答紀錄：</h3>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+      <th>作答時間</th>
+      <th>本次分數</th>
+    </tr>
+    {% for record in records %}
+    <tr>
+      <td>{{ record.time }}</td>
+      <td>{{ record.score }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>⚙️ 老師設定</h2>
+  <p>您好，{{ name }}！在這裡可以調整測驗相關設定。</p>
+
+  {% if error %}
+    <p style="color:#b00020;">{{ error }}</p>
+  {% endif %}
+  {% if message %}
+    <p style="color:#006400;">{{ message }}</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('settings_page') }}" style="max-width: 380px;">
+
+    <!-- 1. 每次測驗抽題數 -->
+    <div style="margin-bottom:12px;">
+      <label><b>每次測驗抽出的題目數：</b></label><br>
+      <input type="number"
+             name="questions_per_test"
+             min="1"
+             value="{{ settings.questions_per_test }}"
+             required>
+    </div>
+
+    <!-- 2. 功能選項 -->
+    <div style="margin-bottom:8px;">
+      <label>
+        <input type="checkbox" name="show_explanation"
+               {% if settings.show_explanation %}checked{% endif %}>
+        作答後顯示每題詳解
+      </label>
+    </div>
+
+    <div style="margin-bottom:8px;">
+      <label>
+        <input type="checkbox" name="wrong_only_mode"
+               {% if settings.wrong_only_mode %}checked{% endif %}>
+        啟用「錯題再練模式」（只從該生答錯的題目中出題，若沒有錯題就用全部題庫）
+      </label>
+    </div>
+
+    <!-- 3. 每日作答次數限制 -->
+    <div style="margin-top:12px; margin-bottom:12px;">
+      <label><b>每日作答次數上限：</b></label><br>
+      <input type="number"
+             name="daily_limit"
+             min="0"
+             value="{{ settings.daily_limit }}">
+      <div style="font-size: 0.9em; color:#555;">
+        0 代表不限制，例如 1 = 一天只能作答一次。
+      </div>
+    </div>
+
+    <!-- 4. 整份考卷作答時間（分鐘） -->
+    <div style="margin-top:12px; margin-bottom:12px;">
+      <label><b>整份考卷作答時間（分鐘）：</b></label><br>
+      <input type="number"
+             name="time_limit_minutes"
+             min="0"
+             value="{{ (settings.time_limit_seconds // 60) if settings.time_limit_seconds else 0 }}">
+      <div style="font-size: 0.9em; color:#555;">
+        0 代表不啟用倒數計時；例如輸入 10 代表限時 10 分鐘。
+      </div>
+    </div>
+
+    <button type="submit">儲存設定</button>
+  </form>
+{% endblock %}

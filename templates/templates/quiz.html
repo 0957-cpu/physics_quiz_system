@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <h2>📘 物理題庫挑戰</h2>
+  <p>歡迎，{{ name }}！請開始作答：</p>
+
+  {# ===========================
+     A. 固定在上方的倒數計時條
+     ============================ #}
+  {% if time_limit_seconds and time_limit_seconds > 0 %}
+    <div id="timer_bar"
+         style="
+           position: sticky;
+           top: 0;
+           z-index: 999;
+           background-color: #f9f9f9;
+           padding: 8px 12px;
+           margin: 8px 0 12px 0;
+           border: 2px solid #ccc;
+           border-radius: 6px;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         ">
+      ⏳ 剩餘時間：
+      <span id="timer_display" style="font-size: 1.2em; font-weight: bold;">--:--</span>
+    </div>
+  {% endif %}
+
+  <form id="quiz_form" method="post" action="{{ url_for('submit') }}">
+    {% for q in quiz %}
+      <div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+        <b>{{ loop.index }}. {{ q.text }}</b><br><br>
+        {% if q.options %}
+          {% for opt in q.options %}
+            <label>
+              <input type="radio" name="{{ q.id }}" value="{{ opt }}" required>
+              {{ opt }}
+            </label><br>
+          {% endfor %}
+        {% else %}
+          <p style="color:red;">⚠️ 此題沒有選項，請檢查題庫。</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" style="padding: 8px 16px;">送出答案</button>
+  </form>
+
+  {% if time_limit_seconds and time_limit_seconds > 0 %}
+  <style>
+    /* 剩 1 分鐘時，紅色閃爍 */
+    @keyframes flashRed {
+      0%   { color: #ff0000; }
+      50%  { color: #ffaaaa; }
+      100% { color: #ff0000; }
+    }
+    .timer-urgent {
+      animation: flashRed 1s infinite;
+      font-weight: bold;
+    }
+  </style>
+
+  <script>
+  (function() {
+      // 從後端拿到的總秒數（整份考卷的限時）
+      var originalTotalSeconds = {{ time_limit_seconds|int }};
+      var display = document.getElementById('timer_display');
+      var form = document.getElementById('quiz_form');
+      var timerBar = document.getElementById('timer_bar');
+      var STORAGE_KEY = "quiz_end_time";  // 用來避免重整作弊
+
+      if (!display || !form) {
+        return;  // 防呆：如果畫面上沒有這些元素就不跑
+      }
+
+      // 監聽表單送出：不管是時間到自動送出或學生自己按送出，都清掉 localStorage
+      form.addEventListener("submit", function() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+      });
+
+      // 使用 localStorage 存「結束時間」，避免按 F5 重來
+      var endTime = null;
+      try {
+        var storedEnd = localStorage.getItem(STORAGE_KEY);
+        if (storedEnd) {
+          endTime = parseInt(storedEnd, 10);
+        }
+      } catch (e) {
+        endTime = null;
+      }
+
+      // 如果 localStorage 沒有記錄，就從現在開始計 originalTotalSeconds 秒
+      if (!endTime || isNaN(endTime)) {
+        endTime = Date.now() + originalTotalSeconds * 1000;
+        try {
+          localStorage.setItem(STORAGE_KEY, String(endTime));
+        } catch (e) {}
+      }
+
+      // 格式化 mm:ss
+      function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
+      }
+
+      function tick() {
+        var now = Date.now();
+        var diffMs = endTime - now;
+        var totalSeconds = Math.floor(diffMs / 1000);
+
+        // 時間到了或超過了：強制交卷
+        if (totalSeconds <= 0) {
+          display.textContent = "00:00";
+          display.style.color = "red";
+          display.style.fontWeight = "bold";
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
+          alert("時間到！系統將自動送出答案並計分。");
+          form.submit();
+          return;
+        }
+
+        // 剩 3 分鐘以內：紅色提醒
+        if (totalSeconds <= 180) {
+          display.style.color = "red";
+          display.style.fontWeight = "bold";
+        }
+
+        // 剩 1 分鐘以內：紅色閃爍
+        if (totalSeconds <= 60) {
+          display.classList.add("timer-urgent");
+        }
+
+        display.textContent = formatTime(totalSeconds);
+
+        // 每秒跑一次
+        setTimeout(tick, 1000);
+      }
+
+      // 初始化顯示
+      var initSeconds = Math.floor((endTime - Date.now()) / 1000);
+      if (initSeconds <= 0) {
+        // 剛載入就已經超時
+        display.textContent = "00:00";
+        display.style.color = "red";
+        display.style.fontWeight = "bold";
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+        alert("作答時間已結束，系統將自動送出答案並計分。");
+        form.submit();
+        return;
+      } else {
+        display.textContent = formatTime(initSeconds);
+        setTimeout(tick, 1000);
+      }
+
+      // 視窗切換提醒（防範切出去做別的事）
+      var blurWarned = false;
+      document.addEventListener("visibilitychange", function() {
+        if (document.hidden && !blurWarned) {
+          alert("請保持在測驗畫面，避免影響作答與紀錄。");
+          blurWarned = true;
+        }
+      });
+
+  })();
+  </script>
+  {% endif %}
+
+{% endblock %}

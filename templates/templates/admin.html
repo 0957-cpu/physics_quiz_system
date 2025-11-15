@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>老師後台 - 學生成績總覽</title>
+</head>
+<body>
+  <h1>老師後台 - 學生成績總覽</h1>
+  <p>這頁是給老師看的，列出所有帳號的累積積分與作答統計。</p>
+  <p>
+    <a href="{{ url_for('login') }}">回到登入頁</a>
+  </p>
+  <hr>
+
+  <table border="1" cellspacing="0" cellpadding="8">
+    <tr>
+      <th>排名</th>
+      <th>帳號</th>
+      <th>姓名</th>
+      <th>總積分</th>
+      <th>等級</th>
+      <th>作答次數</th>
+      <th>平均分數</th>
+    </tr>
+
+    {% for u in users %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ u.account }}</td>
+        <td>{{ u.name }}</td>
+        <td>{{ u.total_points }}</td>
+        <td>{{ u.level }}</td>
+        <td>{{ u.attempts }}</td>
+        <td>
+          {% if u.avg_score is not none %}
+            {{ u.avg_score }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
